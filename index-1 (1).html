@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fee Installment Reminder System</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#eef2ff,#f8fafc);
+    color:#1e293b;
+    min-height:100vh;
+}
+
+header{
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    color:white;
+    text-align:center;
+    padding:30px 20px;
+    box-shadow:0 5px 20px #0002;
+}
+
+header h1{
+    font-size:clamp(25px,5vw,40px);
+    margin-bottom:8px;
+}
+
+header p{
+    opacity:.9;
+}
+
+.container{
+    width:min(1100px,94%);
+    margin:25px auto;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    margin-bottom:20px;
+    border-radius:18px;
+    box-shadow:0 8px 30px #00000012;
+    border:1px solid #e2e8f0;
+}
+
+.card h2{
+    color:#4338ca;
+    margin-bottom:18px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+
+input,select{
+    width:100%;
+    padding:12px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    font-size:15px;
+}
+
+button{
+    margin-top:18px;
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    background:#4f46e5;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.green{
+    background:#16a34a;
+}
+
+.red{
+    background:#dc2626;
+}
+
+.gray{
+    background:#64748b;
+}
+
+/* SUMMARY */
+
+.summary{
+    display:grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(170px,1fr));
+    gap:15px;
+}
+
+.stat{
+    background:#f8fafc;
+    padding:18px;
+    border-radius:14px;
+    border-left:5px solid #6366f1;
+}
+
+.stat span{
+    display:block;
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+.stat strong{
+    font-size:22px;
+}
+
+/* TABLE */
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+}
+
+th,td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid #e2e8f0;
+}
+
+th{
+    background:#eef2ff;
+    color:#3730a3;
+}
+
+/* STATUS */
+
+.badge{
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.paid{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.pending{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.overdue{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+/* ALERT */
+
+.alert{
+    padding:14px;
+    margin-bottom:10px;
+    border-radius:10px;
+    background:#fff7ed;
+    border-left:5px solid #f97316;
+}
+
+.success{
+    background:#f0fdf4;
+    border-left-color:#22c55e;
+}
+
+.empty{
+    text-align:center;
+    color:#64748b;
+    padding:20px;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    color:#64748b;
+}
+
+@media(max-width:600px){
+
+    .card{
+        padding:18px;
+    }
+
+    header{
+        padding:22px 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>💰 Fee Installment Reminder System</h1>
+    <p>Track payments, due dates and fee history easily</p>
+</header>
+
+<div class="container">
+
+<!-- =========================
+     1. FEE PLAN SETUP
+========================= -->
+
+<section class="card">
+
+<h2>1. Fee Plan Setup</h2>
+
+<div class="grid">
+
+<div>
+<label>Student Name</label>
+<input id="studentName"
+       type="text"
+       placeholder="Enter student name">
+</div>
+
+<div>
+<label>Phone Number</label>
+<input id="phone"
+       type="text"
+       placeholder="Enter phone number">
+</div>
+
+<div>
+<label>Total Fee (₹)</label>
+<input id="totalFee"
+       type="number"
+       min="0"
+       placeholder="50000">
+</div>
+
+<div>
+<label>Number of Installments</label>
+<input id="installments"
+       type="number"
+       min="1"
+       max="50"
+       placeholder="5">
+</div>
+
+<div>
+<label>First Due Date</label>
+<input id="firstDate"
+       type="date">
+</div>
+
+<div>
+<label>Installment Gap</label>
+
+<select id="gap">
+
+<option value="30">
+Every 30 days
+</option>
+
+<option value="15">
+Every 15 days
+</option>
+
+<option value="45">
+Every 45 days
+</option>
+
+<option value="60">
+Every 60 days
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+<button onclick="createPlan()">
+Create Fee Plan
+</button>
+
+<button class="gray"
+        onclick="clearAll()">
+Clear All
+</button>
+
+</section>
+
+
+<!-- =========================
+     SUMMARY
+========================= -->
+
+<section class="card">
+
+<h2>📊 Fee Summary</h2>
+
+<div class="summary">
+
+<div class="stat">
+<span>Student</span>
+<strong id="summaryName">-</strong>
+</div>
+
+<div class="stat">
+<span>Total Fee</span>
+<strong id="summaryTotal">₹0</strong>
+</div>
+
+<div class="stat">
+<span>Paid</span>
+<strong id="summaryPaid">₹0</strong>
+</div>
+
+<div class="stat">
+<span>Remaining</span>
+<strong id="summaryRemaining">₹0</strong>
+</div>
+
+<div class="stat">
+<span>Pending</span>
+<strong id="summaryPending">0</strong>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     2. PAYMENT LOGGER
+========================= -->
+
+<section class="card">
+
+<h2>2. Payment Logger</h2>
+
+<div class="grid">
+
+<div>
+<label>Installment</label>
+
+<select id="paymentInstallment">
+
+<option value="">
+Create a plan first
+</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>Payment Amount (₹)</label>
+
+<input id="paymentAmount"
+       type="number"
+       min="0"
+       placeholder="Enter amount">
+
+</div>
+
+<div>
+
+<label>Payment Date</label>
+
+<input id="paymentDate"
+       type="date">
+
+</div>
+
+</div>
+
+<button class="green"
+        onclick="recordPayment()">
+
+Record Payment
+
+</button>
+
+</section>
+
+
+<!-- =========================
+     3. DUE DATE TRACKER
+========================= -->
+
+<section class="card">
+
+<h2>3. Due Date Tracker 📅</h2>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>No.</th>
+<th>Due Date</th>
+<th>Amount</th>
+<th>Paid</th>
+<th>Remaining</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody id="installmentTable">
+
+<tr>
+<td colspan="6"
+    class="empty">
+
+No fee plan created yet.
+
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     4. ALERT MODULE
+========================= -->
+
+<section class="card">
+
+<h2>4. Alert Module 🔔</h2>
+
+<div id="alerts">
+
+<div class="empty">
+No alerts.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     5. INSTALLMENT LOG SAVER
+========================= -->
+
+<section class="card">
+
+<h2>5. Installment Log Saver 💾</h2>
+
+<p style="color:#64748b;margin-bottom:15px">
+
+Payment history is automatically saved
+in your browser.
+
+</p>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Installment</th>
+<th>Amount Paid</th>
+</tr>
+
+</thead>
+
+<tbody id="historyTable">
+
+<tr>
+<td colspan="3"
+    class="empty">
+
+No payment history.
+
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<button class="red"
+        onclick="clearHistory()">
+
+Clear Payment History
+
+</button>
+
+</section>
+
+</div>
+
+
+<footer>
+
+Simple Fee Installment Reminder System
+<br>
+HTML + CSS + JavaScript
+
+</footer>
+
+
+<script>
+
+/* =========================
+   DATA
+========================= */
+
+let data =
+JSON.parse(localStorage.getItem("feeSystem"))
+||
+{
+    studentName:"",
+    phone:"",
+    totalFee:0,
+    installments:[],
+    history:[]
+};
+
+
+/* =========================
+   TODAY
+========================= */
+
+function today(){
+
+    return new Date()
+    .toISOString()
+    .split("T")[0];
+
+}
+
+document
+.getElementById("paymentDate")
+.value=today();
+
+
+/* =========================
+   MONEY FORMAT
+========================= */
+
+function money(n){
+
+    return "₹"+
+    Number(n).toLocaleString(
+        "en-IN",
+        {
+            maximumFractionDigits:2
+        }
+    );
+
+}
+
+
+/* =========================
+   CREATE FEE PLAN
+========================= */
+
+function createPlan(){
+
+    let name=
+    document
+    .getElementById("studentName")
+    .value.trim();
+
+    let phone=
+    document
+    .getElementById("phone")
+    .value.trim();
+
+    let total=
+    Number(
+        document
+        .getElementById("totalFee")
+        .value
+    );
+
+    let count=
+    Number(
+        document
+        .getElementById("installments")
+        .value
+    );
+
+    let first=
+    document
+    .getElementById("firstDate")
+    .value;
+
+    let gap=
+    Number(
+        document
+        .getElementById("gap")
+        .value
+    );
+
+
+    if(
+        !name ||
+        !total ||
+        !count ||
+        !first
+    ){
+
+        alert(
+            "Please fill all fee plan details."
+        );
+
+        return;
+    }
+
+
+    if(count<1 || count>50){
+
+        alert(
+            "Installments must be between 1 and 50."
+        );
+
+        return;
+    }
+
+
+    let base=
+    Math.floor(
+        (total/count)*100
+    )/100;
+
+
+    let remainder=
+    Math.round(
+        (
+            total-
+            base*(count-1)
+        )*100
+    )/100;
+
+
+    data.studentName=name;
+    data.phone=phone;
+    data.totalFee=total;
+    data.installments=[];
+    data.history=[];
+
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        let date=
+        new Date(
+            first+"T00:00:00"
+        );
+
+        date.setDate(
+            date.getDate()+i*gap
+        );
+
+
+        let amount=
+        i===count-1
+        ? remainder
+        : base;
+
+
+        data.installments.push({
+
+            number:i+1,
+
+            dueDate:
+            date
+            .toISOString()
+            .split("T")[0],
+
+            amount:amount,
+
+            paid:0
+
+        });
+
+    }
+
+
+    save();
+
+    render();
+
+    alert(
+        "Fee plan created successfully!"
+    );
+
+}
+
+
+/* =========================
+   RECORD PAYMENT
+========================= */
+
+function recordPayment(){
+
+    let index=
+    Number(
+        document
+        .getElementById(
+            "paymentInstallment"
+        )
+        .value
+    );
+
+
+    let amount=
+    Number(
+        document
+        .getElementById(
+            "paymentAmount"
+        )
+        .value
+    );
+
+
+    let date=
+    document
+    .getElementById(
+        "paymentDate"
+    )
+    .value
+    ||
+    today();
+
+
+    if(
+        isNaN(index) ||
+        !data.installments[index]
+    ){
+
+        alert(
+            "Please select an installment."
+        );
+
+        return;
+    }
+
+
+    if(
+        !amount ||
+        amount<=0
+    ){
+
+        alert(
+            "Enter a valid payment amount."
+        );
+
+        return;
+    }
+
+
+    let item=
+    data.installments[index];
+
+
+    let remaining=
+    item.amount-item.paid;
+
+
+    if(amount>remaining){
+
+        alert(
+            "Payment cannot be greater than the remaining amount."
+        );
+
+        return;
+    }
+
+
+    item.paid=
+    Math.round(
+        (
+            item.paid+amount
+        )*100
+    )/100;
+
+
+    data.history.push({
+
+        date:date,
+
+        installment:
+        item.number,
+
+        amount:amount
+
+    });
+
+
+    save();
+
+    render();
+
+
+    document
+    .getElementById(
+        "paymentAmount"
+    )
+    .value="";
+
+
+    alert(
+        "Payment recorded successfully!"
+    );
+
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+function getStatus(item){
+
+    if(item.paid>=item.amount){
+
+        return [
+            "Paid",
+            "paid"
+        ];
+
+    }
+
+
+    let due=
+    new Date(
+        item.dueDate+
+        "T23:59:59"
+    );
+
+
+    let now=
+    new Date();
+
+
+    if(now>due){
+
+        return [
+            "Overdue",
+            "overdue"
+        ];
+
+    }
+
+
+    return [
+        "Pending",
+        "pending"
+    ];
+
+}
+
+
+/* =========================
+   DATE FORMAT
+========================= */
+
+function formatDate(date){
+
+    return new Date(
+        date+"T00:00:00"
+    )
+    .toLocaleDateString(
+        "en-IN"
+    );
+
+}
+
+
+/* =========================
+   RENDER
+========================= */
+
+function render(){
+
+    document
+    .getElementById(
+        "summaryName"
+    )
+    .textContent=
+    data.studentName || "-";
+
+
+    document
+    .getElementById(
+        "summaryTotal"
+    )
+    .textContent=
+    money(data.totalFee);
+
+
+    let paid=
+    data.installments
+    .reduce(
+        (sum,x)=>
+        sum+x.paid,
+        0
+    );
+
+
+    let pending=
+    data.installments
+    .filter(
+        x=>x.paid<x.amount
+    )
+    .length;
+
+
+    document
+    .getElementById(
+        "summaryPaid"
+    )
+    .textContent=
+    money(paid);
+
+
+    document
+    .getElementById(
+        "summaryRemaining"
+    )
+    .textContent=
+    money(
+        Math.max(
+            0,
+            data.totalFee-paid
+        )
+    );
+
+
+    document
+    .getElementById(
+        "summaryPending"
+    )
+    .textContent=
+    pending;
+
+
+    renderPaymentSelect();
+
+    renderInstallments();
+
+    renderAlerts();
+
+    renderHistory();
+
+}
+
+
+/* =========================
+   PAYMENT SELECT
+========================= */
+
+function renderPaymentSelect(){
+
+    let select=
+    document
+    .getElementById(
+        "paymentInstallment"
+    );
+
+
+    select.innerHTML="";
+
+
+    if(
+        data.installments.length===0
+    ){
+
+        select.innerHTML=
+        '<option value="">Create a plan first</option>';
+
+        return;
+    }
+
+
+    data.installments
+    .forEach(
+        (x,i)=>{
+
+            let remaining=
+            x.amount-x.paid;
+
+
+            if(remaining>0){
+
+                let option=
+                document.createElement(
+                    "option"
+                );
+
+
+                option.value=i;
+
+
+                option.textContent=
+                "Installment "+
+                x.number+
+                " - Remaining "+
+                money(remaining);
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+
+        }
+    );
+
+
+    if(select.options.length===0){
+
+        select.innerHTML=
+        '<option value="">All installments paid</option>';
+
+    }
+
+}
+
+
+/* =========================
+   INSTALLMENT TABLE
+========================= */
+
+function renderInstallments(){
+
+    let table=
+    document
+    .getElementById(
+        "installmentTable"
+    );
+
+
+    table.innerHTML="";
+
+
+    if(
+        data.installments.length===0
+    ){
+
+        table.innerHTML=
+        `
+        <tr>
+        <td colspan="6"
+            class="empty">
+
+        No fee plan created yet.
+
+        </td>
+        </tr>
+        `;
+
+        return;
+    }
+
+
+    data.installments
+    .forEach(
+        item=>{
+
+            let status=
+            getStatus(item);
+
+
+            let remaining=
+            Math.max(
+                0,
+                item.amount-item.paid
+            );
+
+
+            let row=
+            document.createElement(
+                "tr"
+            );
+
+
+            row.innerHTML=`
+
+            <td>
+                ${item.number}
+            </td>
+
+            <td>
+                ${formatDate(item.dueDate)}
+            </td>
+
+            <td>
+                ${money(item.amount)}
+            </td>
+
+            <td>
+                ${money(item.paid)}
+            </td>
+
+            <td>
+                ${money(remaining)}
+            </td>
+
+            <td>
+
+                <span class="badge ${status[1]}">
+
+                    ${status[0]}
+
+                </span>
+
+            </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        }
+    );
+
+}
+
+
+/* =========================
+   ALERT MODULE
+========================= */
+
+function renderAlerts(){
+
+    let alerts=
+    document
+    .getElementById(
+        "alerts"
+    );
+
+
+    alerts.innerHTML="";
+
+
+    let pending=
+    data.installments
+    .filter(
+        x=>x.paid<x.amount
+    );
+
+
+    if(pending.length===0){
+
+        alerts.innerHTML=
+        `
+        <div class="alert success">
+
+        ✅ All installments are paid!
+
+        </div>
+        `;
+
+        return;
+    }
+
+
+    pending.forEach(
+        item=>{
+
+            let due=
+            new Date(
+                item.dueDate+
+                "T23:59:59"
+            );
+
+
+            let now=
+            new Date();
+
+
+            let div=
+            document.createElement(
+                "div"
+            );
+
+
+            div.className="alert";
+
+
+            if(now>due){
+
+                div.innerHTML=
+                `
+                🚨 Installment
+                <b>${item.number}</b>
+                is overdue.
+
+                Remaining:
+                <b>
+                ${money(
+                    item.amount-item.paid
+                )}
+                </b>
+                `;
+
+            }
+            else{
+
+                div.innerHTML=
+                `
+                🔔 Installment
+                <b>${item.number}</b>
+                is due on
+                <b>
+                ${formatDate(item.dueDate)}
+                </b>.
+
+                Remaining:
+                <b>
+                ${money(
+                    item.amount-item.paid
+                )}
+                </b>
+                `;
+
+            }
+
+
+            alerts.appendChild(div);
+
+        }
+    );
+
+}
+
+
+/* =========================
+   HISTORY
+========================= */
+
+function renderHistory(){
+
+    let table=
+    document
+    .getElementById(
+        "historyTable"
+    );
+
+
+    table.innerHTML="";
+
+
+    if(data.history.length===0){
+
+        table.innerHTML=
+        `
+        <tr>
+
+        <td colspan="3"
+            class="empty">
+
+        No payment history.
+
+        </td>
+
+        </tr>
+        `;
+
+        return;
+    }
+
+
+    [
+        ...data.history
+    ]
+    .reverse()
+    .forEach(
+        item=>{
+
+            let row=
+            document.createElement(
+                "tr"
+            );
+
+
+            row.innerHTML=`
+
+            <td>
+                ${formatDate(item.date)}
+            </td>
+
+            <td>
+                Installment
+                ${item.installment}
+            </td>
+
+            <td>
+                ${money(item.amount)}
+            </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        }
+    );
+
+}
+
+
+/* =========================
+   SAVE
+========================= */
+
+function save(){
+
+    localStorage.setItem(
+        "feeSystem",
+        JSON.stringify(data)
+    );
+
+}
+
+
+/* =========================
+   CLEAR HISTORY
+========================= */
+
+function clearHistory(){
+
+    if(
+        !confirm(
+            "Clear all payment history?"
+        )
+    )
+    return;
+
+
+    data.history=[];
+
+
+    data.installments
+    .forEach(
+        item=>{
+            item.paid=0;
+        }
+    );
+
+
+    save();
+
+    render();
+
+}
+
+
+/* =========================
+   CLEAR ALL
+========================= */
+
+function clearAll(){
+
+    if(
+        !confirm(
+            "Clear complete fee plan and history?"
+        )
+    )
+    return;
+
+
+    data={
+        studentName:"",
+        phone:"",
+        totalFee:0,
+        installments:[],
+        history:[]
+    };
+
+
+    localStorage.removeItem(
+        "feeSystem"
+    );
+
+
+    document
+    .getElementById(
+        "studentName"
+    ).value="";
+
+
+    document
+    .getElementById(
+        "phone"
+    ).value="";
+
+
+    document
+    .getElementById(
+        "totalFee"
+    ).value="";
+
+
+    document
+    .getElementById(
+        "installments"
+    ).value="";
+
+
+    document
+    .getElementById(
+        "firstDate"
+    ).value="";
+
+
+    render();
+
+}
+
+
+/* =========================
+   INITIAL LOAD
+========================= */
+
+if(data.studentName){
+
+    document
+    .getElementById(
+        "studentName"
+    ).value=
+    data.studentName;
+
+}
+
+
+if(data.phone){
+
+    document
+    .getElementById(
+        "phone"
+    ).value=
+    data.phone;
+
+}
+
+
+if(data.totalFee){
+
+    document
+    .getElementById(
+        "totalFee"
+    ).value=
+    data.totalFee;
+
+}
+
+
+if(data.installments.length){
+
+    document
+    .getElementById(
+        "installments"
+    ).value=
+    data.installments.length;
+
+}
+
+
+render();
+
+</script>
+
+</body>
+</html>
